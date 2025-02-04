@@ -13,11 +13,11 @@
 # Идеально запускать комбинацией клавиш
 # Do use shortcuts
 
-	: > ~/.trans.txt #Очищает файл текущего перевода/Cleans the current translation file
+: > ~/.trans.txt #Очищает файл текущего перевода/Cleans the current translation file
 
-    TEXT=$(wl-paste -p) #Копирование выделенного текста/Copying of the selected text
+TEXT=$(wl-paste -p) #Копирование выделенного текста/Copying of the selected text
 
-    # Проверка наличия выделенного текста
+# Проверка наличия выделенного текста
 if [ -z "$TEXT" ]; then
     notify-send -a "Google Translate" -i dialog-error -t 7000 "ОШИБКА:" "Не выделен текст для перевода"
     exit 1
@@ -52,8 +52,7 @@ notify-send -a "Google Translate" -i dialog-information "ПЕРЕВОД:" "$TRAX
 	echo -e "$TRAX \n" >> /tmp/trans.txt #Добавляет перевод во временный файл-накопитель/Adds the transfer to temporary file
 
 	wl-copy < $HOME/.trans.txt #Копирует перевод в буфер обмена/Copies the transfer to the clipboard
-	wl-copy -p "" #Подчищает первичный буфер обмена/Clear the primary clipboard
-	   	   
+		   	   
 	else
 	
 notify-send -a "Google Translate" -i dialog-error -t 7000 "ОШИБКА: Отсутствует перевод" "Нет связи с сервисом" #Сообщение в случае ошибки/Error messege
