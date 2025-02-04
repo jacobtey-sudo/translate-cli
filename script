@@ -1,0 +1,61 @@
+#!/bin/bash
+
+# Сценарий с помощью translate-shell (https://github.com/soimort/translate-shell), wl-clipboard (https://github.com/bugaevc/wl-clipboard) и libnotify
+# переводит выделенный до этого текст с русского на английский или с любого языка на русский
+# и выводит перевод как системное уведомление, одновременно добавляя его 
+# в накопитель /tmp/trans.txt и буфер обмена
+
+# The script with translate-shell (https://github.com/soimort/translate-shell), wl-clipboard (https://github.com/bugaevc/wl-clipboard) and libnotify
+# translating the selected text out from Russian to English or from any language into Russian
+# and displays translation as a system notification, at the same time adding it
+# to the drive /tmp/trans.txt and clipboard
+
+# Идеально запускать комбинацией клавиш
+# Do use shortcuts
+
+	: > ~/.trans.txt #Очищает файл текущего перевода/Cleans the current translation file
+
+    TEXT=$(wl-paste -p) #Копирование выделенного текста/Copying of the selected text
+
+    # Проверка наличия выделенного текста
+if [ -z "$TEXT" ]; then
+    notify-send -a "Google Translate" -i dialog-error -t 7000 "ОШИБКА:" "Не выделен текст для перевода"
+    exit 1
+fi
+
+notify-send -a "Google Translate" -i dialog-question -t 2000 "Ищу перевод..." " " #Выводит первое сообщение/Displays the first message
+
+
+    IDENT=$(trans -u chrome -id "$TEXT" | grep ru) #Проверка языка выделенного текста/Checking the dedicated text
+
+	
+	if [ "$IDENT" ]; then
+	
+    TRANS=$(trans -u chrome -b -t en "$TEXT" -o $HOME/.trans.txt) #Переводит с русского на английский и помещает перевод в файл/Translates from Russian into English and puts the transfer to the file
+	
+	else
+	
+    TRANS=$(trans -u chrome -b -t ru "$TEXT" -o $HOME/.trans.txt) #Переводит с любого языка на русский и помещает перевод в файл/Translates from any language into Russian and puts transfer to a file
+	
+	fi
+	
+	$TRANS
+
+    TRAX=$(cat $HOME/.trans.txt) #Выбирает текст в файле текущего перевода/Selects text in the current translation file
+
+
+	if [ "$TRAX" ]; then
+	  
+notify-send -a "Google Translate" -i dialog-information "ПЕРЕВОД:" "$TRAX" #Выводит выбранный в файле-накопителе перевод в оповещении/Displays a transfer in a warning file selected in a file
+
+	
+	echo -e "$TRAX \n" >> /tmp/trans.txt #Добавляет перевод во временный файл-накопитель/Adds the transfer to temporary file
+
+	wl-copy < $HOME/.trans.txt #Копирует перевод в буфер обмена/Copies the transfer to the clipboard
+	wl-copy -p "" #Подчищает первичный буфер обмена/Clear the primary clipboard
+	   	   
+	else
+	
+notify-send -a "Google Translate" -i dialog-error -t 7000 "ОШИБКА: Отсутствует перевод" "Нет связи с сервисом" #Сообщение в случае ошибки/Error messege
+	    
+	fi
